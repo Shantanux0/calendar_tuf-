@@ -22,8 +22,8 @@ export function useNotes() {
     localStorage.setItem("epoch-notes", JSON.stringify(notes));
   }, [notes]);
 
-  const saveNote = useCallback((date: Date, text: string, color: string) => {
-    const key = date.toDateString();
+  const saveNote = useCallback((dateOrKey: Date | string, text: string, color: string) => {
+    const key = dateOrKey instanceof Date ? dateOrKey.toDateString() : dateOrKey;
     if (text.trim()) {
       setNotes(n => ({ ...n, [key]: { text, color, date: key } }));
     } else {
@@ -31,18 +31,35 @@ export function useNotes() {
     }
   }, []);
 
-  const getNote = useCallback((date: Date) => notes[date.toDateString()] || null, [notes]);
-  const hasNote = useCallback((date: Date) => !!notes[date.toDateString()], [notes]);
+  const getNote = useCallback((dateOrKey: Date | string) => {
+    const key = dateOrKey instanceof Date ? dateOrKey.toDateString() : dateOrKey;
+    return notes[key] || null;
+  }, [notes]);
 
-  const openNote = useCallback((date: Date) => {
-    setSelectedDate(date);
-    const existing = notes[date.toDateString()];
+  const hasNote = useCallback((dateOrKey: Date | string) => {
+    const key = dateOrKey instanceof Date ? dateOrKey.toDateString() : dateOrKey;
+    return !!notes[key];
+  }, [notes]);
+
+  const openNote = useCallback((dateOrKey: Date | string | null) => {
+    if (!dateOrKey) {
+      setSelectedDate(null);
+      return;
+    }
+    const key = dateOrKey instanceof Date ? dateOrKey.toDateString() : dateOrKey;
+    if (dateOrKey instanceof Date) {
+      setSelectedDate(dateOrKey);
+    } else {
+      setSelectedDate(null);
+    }
+    
+    const existing = notes[key];
     if (existing) setCurrentColor(existing.color);
     else setCurrentColor(NOTE_COLORS[0]);
     setShowDrawer(true);
   }, [notes]);
 
-  return { notes, saveNote, getNote, hasNote, openNote, selectedDate, currentColor, setCurrentColor, showDrawer, setShowDrawer, NOTE_COLORS };
+  return { notes, saveNote, getNote, hasNote, openNote, selectedDate, setSelectedDate, currentColor, setCurrentColor, showDrawer, setShowDrawer, NOTE_COLORS };
 }
 
 export { NOTE_COLORS };

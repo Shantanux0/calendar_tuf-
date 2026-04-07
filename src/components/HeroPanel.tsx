@@ -48,7 +48,7 @@ const HeroPanel = ({ theme, monthIndex, year }: HeroPanelProps) => {
         background: `linear-gradient(to right, transparent 70%, ${p.bg} 100%)`
       }} />
 
-      <AmbientParticles accent={p.accent} />
+      <AmbientParticles accent={p.accent} monthIndex={monthIndex} />
 
       {/* Text overlay */}
       <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8 lg:p-10">

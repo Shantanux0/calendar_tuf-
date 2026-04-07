@@ -11,6 +11,7 @@ export function useCalendar() {
   const today = new Date();
   const [currentMonth, setCurrentMonth] = useState(today.getMonth());
   const [currentYear, setCurrentYear] = useState(today.getFullYear());
+  const [direction, setDirection] = useState(1);
 
   const days = useMemo(() => {
     const firstDay = new Date(currentYear, currentMonth, 1);
@@ -42,6 +43,7 @@ export function useCalendar() {
   }, [currentMonth, currentYear]);
 
   const goNext = useCallback(() => {
+    setDirection(1);
     setCurrentMonth(m => {
       if (m === 11) { setCurrentYear(y => y + 1); return 0; }
       return m + 1;
@@ -49,6 +51,7 @@ export function useCalendar() {
   }, []);
 
   const goPrev = useCallback(() => {
+    setDirection(-1);
     setCurrentMonth(m => {
       if (m === 0) { setCurrentYear(y => y - 1); return 11; }
       return m - 1;
@@ -56,9 +59,10 @@ export function useCalendar() {
   }, []);
 
   const goToday = useCallback(() => {
+    setDirection(today.getMonth() > currentMonth || today.getFullYear() > currentYear ? 1 : -1);
     setCurrentMonth(today.getMonth());
     setCurrentYear(today.getFullYear());
-  }, []);
+  }, [currentMonth, currentYear, today]);
 
-  return { days, currentMonth, currentYear, goNext, goPrev, goToday };
+  return { days, currentMonth, currentYear, direction, goNext, goPrev, goToday };
 }

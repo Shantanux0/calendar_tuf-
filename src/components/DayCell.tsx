@@ -24,6 +24,17 @@ const DayCell = ({ day, index, palette, month, isStart, isEnd, inRange, hasNote,
     day.isCurrentMonth ? HOLIDAYS.find(h => h.month === month && h.day === day.day) : null,
   [day, month]);
 
+  // Authentic almanac moon calculation (visual aesthetic)
+  const moonPhase = useMemo(() => {
+    if (!day.isCurrentMonth) return null;
+    const cycle = (day.day + month * 7) % 30; // Pseudo-sync
+    if (cycle === 0) return "🌑"; // New moon
+    if (cycle === 7) return "🌓"; // Quarter
+    if (cycle === 15) return "🌕"; // Full moon
+    if (cycle === 22) return "🌗"; // Quarter
+    return null;
+  }, [day, month]);
+
   const isSelected = isStart || isEnd;
   const bgColor = isSelected
     ? palette.accent
@@ -43,8 +54,8 @@ const DayCell = ({ day, index, palette, month, isStart, isEnd, inRange, hasNote,
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.018, duration: 0.3 }}
-      whileHover={{ scale: 1.08, backgroundColor: palette.soft }}
-      whileTap={{ scale: 0.88 }}
+      whileHover={{ backgroundColor: isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.04)" }}
+      whileTap={{ scale: 0.95 }}
       onClick={onClick}
       onMouseEnter={onHover}
       className="relative flex flex-col items-center justify-center aspect-square cursor-pointer transition-all duration-150"
@@ -73,18 +84,22 @@ const DayCell = ({ day, index, palette, month, isStart, isEnd, inRange, hasNote,
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ delay: 0.8, type: "spring", stiffness: 400, damping: 10 }}
-          className="absolute -top-1 -right-1 text-[10px]">
+          className="absolute top-1 right-1 text-[11px] opacity-80 mix-blend-multiply">
           {holiday.emoji}
         </motion.span>
       )}
 
-      {/* Note indicator */}
+      {/* Moon phase almanac indicator */}
+      {moonPhase && !holiday && (
+        <span className="absolute top-1 left-1 text-[9px] opacity-30 mix-blend-multiply">
+          {moonPhase}
+        </span>
+      )}
+
+      {/* Modern minimalist Note indicator dot */}
       {hasNote && (
-        <div className="absolute bottom-0.5 right-0.5 w-0 h-0"
-          style={{
-            borderLeft: "6px solid transparent",
-            borderBottom: `6px solid ${noteColor || "#FFF9C4"}`,
-          }} />
+        <div className="absolute bottom-1 right-1 w-1.5 h-1.5 rounded-full"
+          style={{ backgroundColor: noteColor || palette.accent }} />
       )}
 
       <style>{`
